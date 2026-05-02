@@ -386,17 +386,42 @@
   }
   .pred-stat-row {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 10px;
   }
+  .rate-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+  }
+  .rate-row .input { flex: 1; min-width: 0; }
+  .rate-row .mode-toggle { flex: 0 0 auto; }
+  .rate-row .mode-toggle button { padding: 0 10px; font-size: 11.5px; }
   .pred-stat {
     background: var(--bg-elev);
     border: 1px solid var(--stroke-tertiary);
     border-radius: 8px;
     padding: 10px 12px;
     display: flex; flex-direction: column; gap: 2px;
+    min-width: 0;
   }
-  .pred-stat .v { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+  .pred-stat .v {
+    font-size: 22px; font-weight: 600; letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.15;
+  }
+  .pred-stat .v.compact { font-size: 16px; }
+  .pred-stat .v .unit {
+    font-size: 12px; font-weight: 500;
+    color: var(--text-secondary);
+    margin-left: 3px;
+    letter-spacing: 0;
+  }
+  .pred-stat .v .sep {
+    color: var(--text-tertiary);
+    margin: 0 6px;
+    font-weight: 400;
+  }
   .pred-stat .l { font-size: 11px; color: var(--text-secondary); }
   .pred-stat.success .v { color: var(--accent-success); }
   .pred-stat.warning .v { color: var(--accent-warning); }
@@ -409,6 +434,101 @@
     border: 1px solid rgba(245,185,66,0.3);
     border-radius: 6px;
     padding: 8px 10px;
+  }
+
+  /* === Whole-pipeline scope === */
+  .scope-toggle { margin-bottom: 4px; max-width: 320px; }
+  .phase-grid {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .phase-row {
+    display: grid;
+    grid-template-columns: 110px 1fr 70px 130px;
+    gap: 8px;
+    align-items: end;
+    padding: 8px;
+    background: var(--bg-elev);
+    border: 1px solid var(--stroke-tertiary);
+    border-radius: 6px;
+  }
+  .phase-row .phase-label {
+    font-size: 11.5px; font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .phase-row .phase-rate { display: flex; gap: 4px; align-items: stretch; }
+  .phase-row .phase-rate .input { flex: 1; min-width: 0; padding: 5px 7px; font-size: 12px; }
+  .phase-row .phase-rate .mode-toggle button { padding: 0 6px; font-size: 10.5px; }
+  .phase-row input.input { padding: 5px 7px; font-size: 12px; }
+  .phase-row input.input:disabled {
+    opacity: 0.55; cursor: not-allowed;
+    background: var(--fill-tertiary);
+  }
+  .phase-row .start-cell {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .phase-row .start-cell .start-row {
+    display: flex; gap: 4px; align-items: center;
+  }
+  .phase-row .start-cell .start-row .input { flex: 1; }
+  .phase-row .start-cell .override-toggle {
+    cursor: pointer; user-select: none;
+    font-size: 10px; color: var(--text-tertiary);
+    display: flex; align-items: center; gap: 3px;
+  }
+  .phase-row .start-cell .override-toggle input { margin: 0; }
+  .pass-rates {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    font-size: 11px; color: var(--text-secondary);
+  }
+  .phase-card-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+  }
+  .phase-card {
+    background: var(--bg-elev);
+    border: 1px solid var(--stroke-tertiary);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex; flex-direction: column; gap: 4px;
+    border-left: 3px solid var(--accent-info);
+  }
+  .phase-card.t-info    { border-left-color: var(--accent-info); }
+  .phase-card.t-success { border-left-color: var(--accent-success); }
+  .phase-card.t-warning { border-left-color: var(--accent-warning); }
+  .phase-card.t-violet  { border-left-color: #8a6dff; }
+  .phase-card.t-neutral { border-left-color: var(--accent-neutral); }
+  .phase-card .pc-title {
+    font-size: 11.5px; font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .phase-card .pc-dates {
+    font-size: 13px; font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .phase-card .pc-meta {
+    font-size: 11px; color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+  .phase-card .pc-pill {
+    display: inline-flex; align-self: flex-start;
+    padding: 1px 7px;
+    font-size: 10.5px; line-height: 16px;
+    border-radius: 999px;
+    background: var(--accent-warning-soft);
+    color: #ffd07a;
+    border: 1px solid rgba(245,185,66,0.3);
+    margin-top: 2px;
+  }
+  .gantt-card {
+    background: var(--bg-card);
+    border: 1px solid var(--stroke-tertiary);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: flex; flex-direction: column; gap: 12px;
   }
 
   /* === Drag-and-drop overlay === */
@@ -650,6 +770,7 @@ const CHART_COLORS = {
   danger:  "#ef4646",
   info:    "#4f8cff",
   neutral: "#3a4055",
+  violet:  "#8a6dff",
 };
 
 function horizontalBarChart(categories, series, opts = {}) {
@@ -867,6 +988,99 @@ function lineChart(series, opts = {}) {
   return svg + legend;
 }
 
+// ganttBarsSVG — horizontal Gantt bar per phase across a calendar-day axis.
+// phases: [{ id, label, tone, start: Date|null, end: Date|null,
+//            startOverride?: Date|null, target, done }]
+// opts:   { startDate: Date, endDate: Date, todayMarker?: Date, height?: number }
+function ganttBarsSVG(phases, opts = {}) {
+  const padTop    = 24;
+  const padBottom = 28;
+  const padLeft   = 130;
+  const padRight  = 24;
+  const innerW    = 720;
+  const rowHeight = 22;
+  const rowGap    = 10;
+  const innerH    = phases.length * (rowHeight + rowGap) - rowGap;
+  const totalW    = innerW + padLeft + padRight;
+  const totalH    = innerH + padTop + padBottom;
+
+  const xMin = opts.startDate.getTime();
+  let xMax = opts.endDate ? opts.endDate.getTime() : xMin + 30 * 24 * 3600 * 1000;
+  if (xMax <= xMin) xMax = xMin + 24 * 3600 * 1000;
+
+  const xToPx = (t) => padLeft + ((t - xMin) / (xMax - xMin)) * innerW;
+
+  let svg = `<svg viewBox="0 0 ${totalW} ${totalH}" class="chart-svg" preserveAspectRatio="xMidYMid meet">`;
+
+  // X-axis date ticks.
+  const tickCount = Math.min(7, Math.max(2, Math.round(innerW / 110)));
+  for (let i = 0; i <= tickCount; i++) {
+    const t = xMin + ((xMax - xMin) * i) / tickCount;
+    const x = xToPx(t);
+    svg += `<line x1="${x}" y1="${padTop - 4}" x2="${x}" y2="${padTop + innerH + 4}" stroke="var(--stroke-tertiary)" stroke-dasharray="2 3" stroke-width="1"/>`;
+    const lbl = new Date(t).toLocaleDateString(undefined, { month: "short", day: "2-digit" });
+    svg += `<text x="${x}" y="${padTop + innerH + 18}" text-anchor="middle" class="chart-label">${lbl}</text>`;
+  }
+
+  // Today marker.
+  if (opts.todayMarker) {
+    const t = opts.todayMarker.getTime();
+    if (t >= xMin && t <= xMax) {
+      const x = xToPx(t);
+      svg += `<line x1="${x}" y1="${padTop - 4}" x2="${x}" y2="${padTop + innerH + 4}" stroke="${CHART_COLORS.danger}" stroke-width="1.5" stroke-dasharray="3 3"/>`;
+      svg += `<text x="${x + 4}" y="${padTop + 8}" class="chart-label" style="fill:${CHART_COLORS.danger}">today</text>`;
+    }
+  }
+
+  // Bars.
+  for (let i = 0; i < phases.length; i++) {
+    const p = phases[i];
+    const rowY = padTop + i * (rowHeight + rowGap);
+    const color = CHART_COLORS[p.tone] || CHART_COLORS.info;
+
+    // Phase label.
+    svg += `<text x="${padLeft - 10}" y="${rowY + rowHeight / 2 + 4}" text-anchor="end" class="chart-label">${escapeXml(p.label)}</text>`;
+
+    // Lane background.
+    svg += `<rect x="${padLeft}" y="${rowY}" width="${innerW}" height="${rowHeight}" fill="var(--fill-tertiary)" rx="4" opacity="0.4"/>`;
+
+    if (p.start && p.end) {
+      const x1 = xToPx(Math.max(xMin, p.start.getTime()));
+      const x2 = xToPx(Math.min(xMax, p.end.getTime()));
+      const w = Math.max(2, x2 - x1);
+      svg += `<rect x="${x1}" y="${rowY}" width="${w}" height="${rowHeight}" fill="${color}" rx="4"/>`;
+      // Inline label inside the bar when there's room.
+      if (w > 60) {
+        const days = Math.max(1, Math.round((p.end.getTime() - p.start.getTime()) / (24 * 3600 * 1000)));
+        svg += `<text x="${x1 + 8}" y="${rowY + rowHeight / 2 + 4}" class="chart-value" style="fill:#fff">${days}d</text>`;
+      }
+      // Override marker triangle at the start, when this phase had a manual override.
+      if (p.startOverride) {
+        const ox = xToPx(p.startOverride.getTime());
+        svg += `<polygon points="${ox - 5},${rowY - 6} ${ox + 5},${rowY - 6} ${ox},${rowY - 1}" fill="${CHART_COLORS.warning}"/>`;
+      }
+    } else if (p.startOverride) {
+      // Override set, but the phase didn't run within the simulation window.
+      const ox = xToPx(p.startOverride.getTime());
+      svg += `<polygon points="${ox - 5},${rowY - 6} ${ox + 5},${rowY - 6} ${ox},${rowY - 1}" fill="${CHART_COLORS.warning}"/>`;
+    }
+  }
+
+  // Bottom axis line.
+  svg += `<line x1="${padLeft}" y1="${padTop + innerH + 4}" x2="${padLeft + innerW}" y2="${padTop + innerH + 4}" stroke="var(--stroke-tertiary)"/>`;
+  svg += `</svg>`;
+
+  let legend = `<div class="legend">`;
+  for (const p of phases) {
+    legend += `<div class="legend-item">
+      <span class="swatch" style="background:${CHART_COLORS[p.tone] || CHART_COLORS.info}"></span>
+      <span class="small secondary">${escapeXml(p.label)}</span>
+    </div>`;
+  }
+  legend += `</div>`;
+  return svg + legend;
+}
+
 // ============================================================================
 // FORMATTING
 // ============================================================================
@@ -917,6 +1131,213 @@ function stagesForFeature(f) {
   ];
 }
 
+// Curation, annotation, and frame review are human-bound — total throughput
+// scales linearly with the size of the team working on that stage. Collection
+// is gated by patient flow rather than headcount, so it stays workers-agnostic.
+const HUMAN_BOUND_STAGES = new Set(["curation", "annotation", "review"]);
+function stageIsHumanBound(stageId) { return HUMAN_BOUND_STAGES.has(stageId); }
+
+// ============================================================================
+// WHOLE-PIPELINE FUNNEL & SIMULATOR
+// ============================================================================
+// In whole-pipeline mode we treat every phase as patient-counted for now (frame
+// math will come later). Phase 1 starts from `required`. Curation pass-rate
+// narrows the funnel into annotation/review; we assume 100% pass for the other
+// hand-offs until we have CSV columns for them.
+
+const PIPELINE_PHASES = [
+  { id: "collection", label: "Phase 1 — Collection",  unit: "patients", tone: "info"    },
+  { id: "curation",   label: "Phase 2 — Curation",    unit: "patients", tone: "success" },
+  { id: "annotation", label: "Phase 3 — Annotation",  unit: "patients", tone: "warning" },
+  { id: "review",     label: "Phase 4 — Final review", unit: "patients", tone: "violet" },
+];
+
+// Build the per-phase done/target funnel for the whole-pipeline simulator.
+// Returns { phases: [{id, label, unit, tone, done, target, passRateForward}],
+//           passRates: {curationToAnnotation, annotationToReview, ...},
+//           hasCurationHistory: bool }
+function buildPipelineFunnel(featureAgg) {
+  const required = featureAgg.required || 0;
+  const collected = featureAgg.collected || 0;
+  const passCur = featureAgg.passCuration || 0;
+  const failCur = featureAgg.failCuration || 0;
+  const totalCurated = passCur + failCur;
+  const hasCurationHistory = totalCurated > 0;
+  // Observed curation pass rate, with a safe fallback to 100% when no curation
+  // has happened yet so the simulator stays actionable.
+  const curPassRate = hasCurationHistory ? passCur / totalCurated : 1.0;
+  // Annotation pass-rate isn't in the CSV yet — assume 100%.
+  const annoPassRate = 1.0;
+
+  // Funnel-narrowed targets, in patients.
+  const phase1Target = required;
+  const phase2Target = required;                     // intake from collection
+  const phase3Target = Math.round(required * curPassRate);
+  const phase4Target = Math.round(phase3Target * annoPassRate);
+
+  // Existing progress (clamp so it can't exceed the target — happens when the
+  // CSV reports more done than required, or when the funnel narrows).
+  const phase1Done = Math.min(collected,                              phase1Target);
+  const phase2Done = Math.min(passCur + failCur,                      phase2Target);
+  const phase3Done = Math.min(featureAgg.completeAnnotations || 0,    phase3Target);
+  const phase4Done = Math.min(
+    (featureAgg.framesPassReview || 0) + (featureAgg.framesFailReview || 0),
+    phase4Target,
+  );
+
+  return {
+    phases: [
+      { id: "collection", label: PIPELINE_PHASES[0].label, unit: "patients", tone: "info",
+        done: phase1Done, target: phase1Target, passRateForward: 1.0 },
+      { id: "curation", label: PIPELINE_PHASES[1].label, unit: "patients", tone: "success",
+        done: phase2Done, target: phase2Target, passRateForward: curPassRate },
+      { id: "annotation", label: PIPELINE_PHASES[2].label, unit: "patients", tone: "warning",
+        done: phase3Done, target: phase3Target, passRateForward: annoPassRate },
+      { id: "review", label: PIPELINE_PHASES[3].label, unit: "patients", tone: "violet",
+        done: phase4Done, target: phase4Target, passRateForward: 1.0 },
+    ],
+    passRates: { curation: curPassRate, annotation: annoPassRate },
+    hasCurationHistory,
+  };
+}
+
+const SIMULATION_DAY_CAP = 1825; // 5 years; matches the plan's runaway guard.
+
+// Stream patients through all four phases day-by-day. Returns per-phase
+// start/end dates and a daily cumulative series for charting.
+//
+// params: {
+//   startDate: Date,                  earliest day any phase can start
+//   workdays: number (1..7),          working days per calendar week
+//   phases:   [{ id, ratePerDay, workers, startOverride? }]
+// }
+// funnel: result of buildPipelineFunnel — provides done/target/passRateForward.
+function simulatePipeline(funnel, params) {
+  const { startDate, workdays } = params;
+  const cfgById = new Map(params.phases.map((p) => [p.id, p]));
+
+  // Per-phase mutable state. `available` is the patient backlog upstream has
+  // delivered to this phase but which haven't been consumed yet. Collection
+  // pulls from an infinite pool (the patients we still need to acquire).
+  const phaseState = funnel.phases.map((p) => {
+    const cfg = cfgById.get(p.id) || { ratePerDay: 0, workers: 1 };
+    const effectiveRate = (Number(cfg.ratePerDay) || 0) * (stageIsHumanBound(p.id)
+      ? Math.max(1, Number(cfg.workers) || 1)
+      : 1);
+    return {
+      id: p.id,
+      label: p.label,
+      unit: p.unit,
+      tone: p.tone,
+      done: p.done,
+      target: p.target,
+      remainingInitial: Math.max(0, p.target - p.done),
+      passRateForward: p.passRateForward,
+      effectiveRate,                              // patients per working day
+      workers: stageIsHumanBound(p.id) ? Math.max(1, Number(cfg.workers) || 1) : 1,
+      ratePerDay: Number(cfg.ratePerDay) || 0,    // pre-workers, for display
+      startOverride: cfg.startOverride || null,
+      startOverrideClamped: false,
+      // Backlog the phase can work on. Collection has unlimited supply (we
+      // model it as the gap to its own target). Downstream phases accumulate
+      // as upstream phases produce.
+      available: p.id === "collection" ? Math.max(0, p.target - p.done) : 0,
+      start: null,
+      end: null,
+      series: [],                                  // [{ date, addedToday, cumulative }]
+    };
+  });
+
+  // Seed the downstream backlog for what's already been completed upstream
+  // beyond what this phase has consumed. e.g. if 30 collected but only 20
+  // curated, curation already has 10 patients waiting on day 0.
+  // (Phase 2 backlog = phase1.done * passRateForward(=1) - phase2.done.)
+  for (let i = 1; i < phaseState.length; i++) {
+    const upstream = phaseState[i - 1];
+    const supplied = upstream.done * upstream.passRateForward;
+    phaseState[i].available = Math.max(0, supplied - phaseState[i].done);
+  }
+
+  // Phases that already meet their target have effectively "ended" before the
+  // simulation starts. Mark them so the Gantt and cards have a sensible value
+  // (a one-day-wide bar at the global start) and downstream logic treats them
+  // as immediately complete.
+  for (const p of phaseState) {
+    if (p.target === 0 || p.done >= p.target) {
+      p.start = new Date(startDate.getTime());
+      p.end   = new Date(startDate.getTime());
+    }
+  }
+
+  // Day-by-day loop. Skip entirely when the last phase is already done.
+  let day = new Date(startDate.getTime());
+  let safetyHit = false;
+  const last = phaseState[phaseState.length - 1];
+  const startLoop = last.end == null;
+  for (let step = 0; startLoop && step <= SIMULATION_DAY_CAP; step++) {
+    const isWorking = (day.getDay() !== 0 && day.getDay() !== 6) || workdays === 7;
+
+    for (let i = 0; i < phaseState.length; i++) {
+      const p = phaseState[i];
+      const remaining = p.target - p.done;
+
+      // Check override gating first. If the user pinned a start date in the
+      // future, skip the phase entirely until then.
+      let blockedByOverride = false;
+      if (p.startOverride && day < p.startOverride) {
+        blockedByOverride = true;
+      }
+
+      let consumed = 0;
+      if (!blockedByOverride && isWorking && remaining > 0 && p.effectiveRate > 0 && p.available > 0) {
+        consumed = Math.min(p.effectiveRate, p.available, remaining);
+        p.done += consumed;
+        p.available -= consumed;
+        // Push downstream supply (limited by what the next phase can ever need).
+        const next = phaseState[i + 1];
+        if (next) {
+          const headroom = Math.max(0, next.target - next.done - next.available);
+          next.available += Math.min(consumed * p.passRateForward, headroom);
+        }
+        if (p.start == null) p.start = new Date(day.getTime());
+        if (p.done >= p.target && p.end == null) p.end = new Date(day.getTime());
+      }
+
+      p.series.push({
+        date: new Date(day.getTime()),
+        addedToday: consumed,
+        cumulative: p.done,
+      });
+    }
+
+    // Stop when the last phase has reached its target.
+    if (last.end != null) break;
+
+    // Move to next calendar day.
+    day = new Date(day.getTime() + 24 * 3600 * 1000);
+
+    if (step === SIMULATION_DAY_CAP) safetyHit = true;
+  }
+
+  // Clamp overrides that were earlier than the natural start (we mark them so
+  // the UI can warn). The simulator already used the override; if it pre-dates
+  // the natural window the bar simply renders from `start` (the first day it
+  // actually progressed) — but we still surface the warning.
+  for (const p of phaseState) {
+    if (p.startOverride && p.start && p.startOverride < p.start) {
+      p.startOverrideClamped = true;
+    }
+  }
+
+  const finalEnd = phaseState[phaseState.length - 1].end;
+  return {
+    phases: phaseState,
+    finalEnd,
+    safetyHit,
+    startDate,
+  };
+}
+
 function aggregateAllFeatures(features) {
   const acc = {
     name: "All features",
@@ -960,11 +1381,18 @@ function renderPredictor(features) {
   wrap.innerHTML = `
     <h2>Forecast calculator</h2>
     <p class="secondary">
-      Pick a feature and a pipeline stage, then either set a target end date
-      (we'll compute the daily rate you need) or set a daily rate (we'll
-      compute when the stage finishes). Defaults assume work starts today.
+      Plan one stage at a time, or stream patients through the whole pipeline at
+      once. Defaults assume work starts today.
     </p>
   `;
+
+  // Scope toggle — single stage (legacy) vs whole pipeline (new).
+  const scopeToggle = el("div", { class: "mode-toggle scope-toggle", id: "pred-scope-toggle" });
+  scopeToggle.innerHTML = `
+    <button type="button" data-scope="single" class="active">Single stage</button>
+    <button type="button" data-scope="whole">Whole pipeline</button>
+  `;
+  wrap.appendChild(scopeToggle);
 
   const grid = el("div", { class: "predictor" });
 
@@ -1012,10 +1440,21 @@ function renderPredictor(features) {
         <input id="pred-end" type="date" class="input" value="${defaultEnd}" />
       </div>
       <div class="field" id="pred-rate-field" hidden>
-        <label for="pred-rate">Daily rate</label>
-        <input id="pred-rate" type="number" min="0" step="0.5" class="input" value="2" />
-        <span class="hint" id="pred-rate-unit">items / day</span>
+        <label for="pred-rate">Team rate</label>
+        <div class="rate-row">
+          <input id="pred-rate" type="number" min="0" step="0.5" class="input" value="2" />
+          <div class="mode-toggle" id="pred-rate-unit-toggle">
+            <button type="button" data-unit="day" class="active">/ day</button>
+            <button type="button" data-unit="week">/ week</button>
+          </div>
+        </div>
+        <span class="hint" id="pred-rate-unit">items / working day (team total)</span>
       </div>
+    </div>
+    <div class="field" id="pred-workers-field" hidden>
+      <label for="pred-workers">Workers on this stage</label>
+      <input id="pred-workers" type="number" min="1" step="1" class="input" value="1" />
+      <span class="hint">Curation, annotation, and frame review are human-bound. Throughput scales with team size.</span>
     </div>
     <div class="field">
       <label for="pred-workdays">Working days per week</label>
@@ -1036,10 +1475,70 @@ function renderPredictor(features) {
 
   grid.appendChild(controls);
   grid.appendChild(output);
+
+  // ============================================================================
+  // WHOLE-PIPELINE PANEL — separate controls + output, shown when the user
+  // toggles into "Whole pipeline" scope.
+  // ============================================================================
+  const wholeControls = el("div", { class: "predictor-controls", id: "pred-whole-controls", hidden: true });
+  wholeControls.innerHTML = `
+    <div class="field">
+      <label for="pred-w-feature">Feature</label>
+      <select id="pred-w-feature" class="select">${featureOptions}</select>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="pred-w-start">Pipeline start date</label>
+        <input id="pred-w-start" type="date" class="input" value="${defaultStart}" />
+        <span class="hint">Earliest day any phase can begin.</span>
+      </div>
+      <div class="field">
+        <label for="pred-w-workdays">Working days / week</label>
+        <input id="pred-w-workdays" type="number" min="1" max="7" step="1" class="input" value="5" />
+      </div>
+    </div>
+    <div class="field">
+      <label>Phase configuration</label>
+      <div class="phase-grid" id="pred-w-phase-grid"></div>
+      <span class="hint">Workers only apply to human-bound phases. Override start dates lock a phase to a specific day; leave them blank for natural streaming.</span>
+    </div>
+    <div class="field">
+      <label>Pass rates (observed)</label>
+      <div class="pass-rates" id="pred-w-pass-rates"></div>
+    </div>
+  `;
+
+  const wholeOutput = el("div", { class: "predictor-output", id: "pred-whole-output", hidden: true });
+  wholeOutput.innerHTML = `
+    <div id="pred-w-summary"></div>
+    <div id="pred-w-warnings"></div>
+    <div id="pred-w-phase-cards" class="phase-card-row"></div>
+    <div id="pred-w-gantt"></div>
+    <div id="pred-w-cumulative"></div>
+  `;
+
+  grid.appendChild(wholeControls);
+  grid.appendChild(wholeOutput);
   wrap.appendChild(grid);
 
   // ---- State + recompute
-  const state = { mode: "end" };
+  const state = {
+    mode: "end",
+    rateUnit: "day",
+    scope: "single",                                // "single" | "whole"
+    // Whole-pipeline state holds per-phase rate, unit, workers, and override.
+    // Defaults: 2 / day per phase, 1 worker, no override. Live in JS so the
+    // user's last entered values survive feature changes.
+    whole: {
+      phases: PIPELINE_PHASES.map((p) => ({
+        id: p.id,
+        ratePerDay: 2,
+        rateUnit: "day",
+        workers: stageIsHumanBound(p.id) ? 2 : 1,
+        startOverride: null,                        // YYYY-MM-DD string or null
+      })),
+    },
+  };
 
   function selectedTarget() {
     const fname = controls.querySelector("#pred-feature").value;
@@ -1056,22 +1555,40 @@ function renderPredictor(features) {
     const target = selectedTarget();
     const stage = selectedStage(target);
     const remaining = Math.max(0, stage.target - stage.done);
+    const humanBound = stageIsHumanBound(stage.id);
+
+    // Workers field is only meaningful for human-bound stages; keep it hidden
+    // (and force workers = 1) for collection so the math stays unchanged there.
+    controls.querySelector("#pred-workers-field").hidden = !humanBound;
 
     const startStr = controls.querySelector("#pred-start").value;
     const endStr   = controls.querySelector("#pred-end").value;
     const rateStr  = controls.querySelector("#pred-rate").value;
     const workdays = Math.min(7, Math.max(1, parseInt(controls.querySelector("#pred-workdays").value, 10) || 5));
+    const workers  = humanBound
+      ? Math.max(1, parseInt(controls.querySelector("#pred-workers").value, 10) || 1)
+      : 1;
 
     const start = parseDateInput(startStr) || new Date();
     let end = parseDateInput(endStr);
     let rateInput = parseFloat(rateStr);
     if (!Number.isFinite(rateInput) || rateInput < 0) rateInput = 0;
 
-    controls.querySelector("#pred-rate-unit").textContent = `${stage.unit} / working day`;
+    const rateUnitLabel = state.rateUnit === "week" ? "working week" : "working day";
+    let rateHintText = `${stage.unit} / ${rateUnitLabel} (team total)`;
+    if (state.mode === "rate" && rateInput > 0) {
+      // Surface the converted equivalent so the user can sanity-check what
+      // they typed is what they meant — e.g. "10 / week ≈ 2.00 / working day".
+      const equivDaily = state.rateUnit === "week" ? rateInput / workdays : rateInput;
+      const equivWeekly = state.rateUnit === "week" ? rateInput : rateInput * workdays;
+      rateHintText += state.rateUnit === "week"
+        ? ` — ≈ ${equivDaily.toFixed(2)} / working day`
+        : ` — ≈ ${equivWeekly.toFixed(2)} / working week`;
+    }
+    controls.querySelector("#pred-rate-unit").textContent = rateHintText;
 
-    let dailyRate = 0;        // per working day
+    let dailyRate = 0;        // team total per working day
     let computedEnd = null;
-    let needsRate = false;
     let warningHTML = "";
 
     if (state.mode === "end") {
@@ -1085,19 +1602,34 @@ function renderPredictor(features) {
         if (remaining === 0) warningHTML = `Stage already complete — ${stage.done} / ${stage.target} ${stage.unit}.`;
       }
     } else {
-      needsRate = true;
+      // The user enters a TEAM total. If the toggle is on /week we divide by
+      // working-days-per-week to get the per-working-day team rate the rest
+      // of the math (and the projection charts) operate on.
+      const dailyTeamRate = state.rateUnit === "week" ? rateInput / workdays : rateInput;
       if (rateInput <= 0) {
-        warningHTML = "Daily rate must be greater than zero.";
+        warningHTML = `Team rate must be greater than zero.`;
       } else if (remaining === 0) {
         warningHTML = `Stage already complete — ${stage.done} / ${stage.target} ${stage.unit}.`;
-        dailyRate = rateInput;
+        dailyRate = dailyTeamRate;
         computedEnd = start;
       } else {
-        dailyRate = rateInput;
-        const workingDaysNeeded = Math.ceil(remaining / rateInput);
+        dailyRate = dailyTeamRate;
+        const workingDaysNeeded = Math.ceil(remaining / dailyTeamRate);
         const calendarDaysNeeded = Math.ceil(workingDaysNeeded * (7 / workdays));
         computedEnd = new Date(start.getTime() + calendarDaysNeeded * 24 * 3600 * 1000);
       }
+    }
+
+    // Derived rates for the KPI tiles.
+    const weeklyTeamRate = dailyRate * workdays;
+    const perPersonDaily = workers > 0 ? dailyRate / workers : 0;
+    const perPersonWeekly = workers > 0 ? weeklyTeamRate / workers : 0;
+    const fmtRate = (n) => n > 0 ? n.toFixed(2) : "—";
+    function rateValueHTML(daily, weekly) {
+      if (!(daily > 0)) return "—";
+      return `${fmtRate(daily)}<span class="unit">/ day</span>` +
+             `<span class="sep">·</span>` +
+             `${fmtRate(weekly)}<span class="unit">/ week</span>`;
     }
 
     // ---- Summary line
@@ -1111,18 +1643,25 @@ function renderPredictor(features) {
           <div class="semibold">${escapeXml(fname)} · ${escapeXml(stage.label)}</div>
           <div class="small secondary">
             ${stage.done} of ${stage.target} ${stage.unit} done · ${remaining} remaining
+            ${humanBound ? `· ${workers} worker${workers === 1 ? "" : "s"}` : ""}
           </div>
         </div>
       </div>
     `;
 
-    // ---- Three KPI tiles
+    // ---- KPI tiles (3 normally, 4 when the stage is human-bound).
     const stats = output.querySelector("#pred-stats");
     stats.innerHTML = "";
     stats.appendChild(el("div", { class: "pred-stat info" },
-      el("div", { class: "v" }, dailyRate > 0 ? dailyRate.toFixed(2) : "—"),
-      el("div", { class: "l" }, state.mode === "end" ? "Required rate / working day" : "Daily rate (input)"),
+      el("div", { class: "v compact", html: rateValueHTML(dailyRate, weeklyTeamRate) }),
+      el("div", { class: "l" }, state.mode === "end" ? "Required team rate" : "Team rate (input)"),
     ));
+    if (humanBound) {
+      stats.appendChild(el("div", { class: "pred-stat warning" },
+        el("div", { class: "v compact", html: rateValueHTML(perPersonDaily, perPersonWeekly) }),
+        el("div", { class: "l" }, `Per-person rate (${workers} worker${workers === 1 ? "" : "s"})`),
+      ));
+    }
     stats.appendChild(el("div", { class: "pred-stat" },
       el("div", { class: "v" }, String(remaining)),
       el("div", { class: "l" }, `${stage.unit} remaining`),
@@ -1194,6 +1733,7 @@ function renderPredictor(features) {
   controls.querySelector("#pred-end").addEventListener("input", recompute);
   controls.querySelector("#pred-rate").addEventListener("input", recompute);
   controls.querySelector("#pred-workdays").addEventListener("input", recompute);
+  controls.querySelector("#pred-workers").addEventListener("input", recompute);
   controls.querySelectorAll("#pred-mode button").forEach((btn) => {
     btn.addEventListener("click", () => {
       state.mode = btn.dataset.mode;
@@ -1204,11 +1744,322 @@ function renderPredictor(features) {
       recompute();
     });
   });
+  controls.querySelectorAll("#pred-rate-unit-toggle button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.rateUnit = btn.dataset.unit;
+      controls.querySelectorAll("#pred-rate-unit-toggle button").forEach((b) =>
+        b.classList.toggle("active", b === btn));
+      recompute();
+    });
+  });
 
   // Pre-select the first feature that actually has a non-zero target so the
   // initial view is useful.
   const firstUseful = features.find((f) => f.required > 0) || features[0];
   if (firstUseful) controls.querySelector("#pred-feature").value = firstUseful.name;
+
+  // ============================================================================
+  // WHOLE-PIPELINE RENDERING + WIRING
+  // ============================================================================
+
+  function selectedWholeTarget() {
+    const fname = wholeControls.querySelector("#pred-w-feature").value;
+    if (fname === "__all__") return aggregateAllFeatures(features);
+    return features.find((f) => f.name === fname) || aggregateAllFeatures(features);
+  }
+
+  // Render the 4-row phase configuration grid. Re-renders on feature change so
+  // labels and the funnel preview stay in sync.
+  function renderPhaseGrid() {
+    const host = wholeControls.querySelector("#pred-w-phase-grid");
+    host.innerHTML = "";
+    state.whole.phases.forEach((phaseCfg, idx) => {
+      const meta = PIPELINE_PHASES.find((p) => p.id === phaseCfg.id);
+      const humanBound = stageIsHumanBound(phaseCfg.id);
+      const overrideOn = phaseCfg.startOverride != null;
+      const row = el("div", { class: "phase-row" });
+      row.innerHTML = `
+        <div class="phase-label">${escapeXml(meta.label.replace(/^Phase \d+ — /, ""))}</div>
+        <div class="phase-rate">
+          <input type="number" min="0" step="0.5" class="input"
+                 data-phase="${phaseCfg.id}" data-field="rate"
+                 value="${phaseCfg.ratePerDay}" />
+          <div class="mode-toggle" data-phase="${phaseCfg.id}" data-field="rate-unit">
+            <button type="button" data-unit="day" class="${phaseCfg.rateUnit === "day" ? "active" : ""}">/ day</button>
+            <button type="button" data-unit="week" class="${phaseCfg.rateUnit === "week" ? "active" : ""}">/ week</button>
+          </div>
+        </div>
+        <input type="number" min="1" step="1" class="input"
+               data-phase="${phaseCfg.id}" data-field="workers"
+               value="${phaseCfg.workers}"
+               ${humanBound ? "" : "disabled title='Collection is not human-bound'"} />
+        <div class="start-cell">
+          <div class="start-row">
+            <input type="date" class="input"
+                   data-phase="${phaseCfg.id}" data-field="override"
+                   value="${phaseCfg.startOverride || ""}"
+                   ${overrideOn ? "" : "disabled"} />
+          </div>
+          <label class="override-toggle">
+            <input type="checkbox" data-phase="${phaseCfg.id}" data-field="override-toggle"
+                   ${overrideOn ? "checked" : ""} />
+            Override start
+          </label>
+        </div>
+      `;
+      // Header row above the first phase: column titles.
+      if (idx === 0) {
+        const header = el("div", { class: "phase-row", style: "background:transparent;border-color:transparent;padding-bottom:0;" });
+        header.innerHTML = `
+          <div class="phase-label">Phase</div>
+          <div class="phase-label">Team rate</div>
+          <div class="phase-label">Workers</div>
+          <div class="phase-label">Start (override)</div>
+        `;
+        host.appendChild(header);
+      }
+      host.appendChild(row);
+    });
+  }
+
+  function renderPassRates(funnel) {
+    const host = wholeControls.querySelector("#pred-w-pass-rates");
+    const cur = funnel.passRates.curation;
+    const anno = funnel.passRates.annotation;
+    const curPct = (cur * 100).toFixed(0);
+    const annoPct = (anno * 100).toFixed(0);
+    host.innerHTML = `
+      <span>Collection → Curation: <span class="semibold">100%</span></span>
+      <span>Curation → Annotation: <span class="semibold">${curPct}%</span>${funnel.hasCurationHistory ? "" : " (assumed — no curation history yet)"}</span>
+      <span>Annotation → Review: <span class="semibold">${annoPct}%</span> (assumed)</span>
+    `;
+  }
+
+  function wholeRecompute() {
+    const target = selectedWholeTarget();
+    const startStr = wholeControls.querySelector("#pred-w-start").value;
+    const start = parseDateInput(startStr) || new Date();
+    const workdays = Math.min(7, Math.max(1, parseInt(wholeControls.querySelector("#pred-w-workdays").value, 10) || 5));
+
+    const funnel = buildPipelineFunnel(target);
+    renderPassRates(funnel);
+
+    // Translate per-phase team rate (day or week) into a per-working-day rate
+    // and pass overrides through. simulatePipeline applies workers internally.
+    const simPhases = state.whole.phases.map((cfg) => {
+      const ratePerDay = cfg.rateUnit === "week"
+        ? (Number(cfg.ratePerDay) || 0) / workdays
+        : (Number(cfg.ratePerDay) || 0);
+      return {
+        id: cfg.id,
+        ratePerDay,
+        workers: cfg.workers,
+        startOverride: cfg.startOverride ? parseDateInput(cfg.startOverride) : null,
+      };
+    });
+
+    const sim = simulatePipeline(funnel, { startDate: start, workdays, phases: simPhases });
+
+    // ---- Summary
+    const fname = wholeControls.querySelector("#pred-w-feature").value === "__all__"
+      ? "All features"
+      : target.name;
+    const summary = wholeOutput.querySelector("#pred-w-summary");
+    const finalEnd = sim.finalEnd;
+    const totalCalDays = finalEnd
+      ? Math.max(1, daysBetween(start, finalEnd))
+      : null;
+    summary.innerHTML = `
+      <div class="row between">
+        <div>
+          <div class="semibold">${escapeXml(fname)} · whole pipeline forecast</div>
+          <div class="small secondary">
+            ${finalEnd
+              ? `Final review done by <span class="semibold">${formatLoadedAt(finalEnd).split(",")[0]}</span> · ${totalCalDays} calendar days from start`
+              : `Pipeline does not finish within the simulation window`}
+          </div>
+        </div>
+      </div>
+    `;
+
+    // ---- Warnings
+    const warnings = [];
+    if (!funnel.hasCurationHistory) {
+      warnings.push("No curation history yet — using 100% pass rate from curation to annotation. Outputs will narrow once real curation data accumulates.");
+    }
+    sim.phases.forEach((p) => {
+      const cfg = state.whole.phases.find((x) => x.id === p.id);
+      if (p.remainingInitial > 0 && p.effectiveRate <= 0) {
+        warnings.push(`${PIPELINE_PHASES.find((m) => m.id === p.id).label}: rate is 0 — pipeline will not finish.`);
+      }
+      if (p.startOverrideClamped) {
+        warnings.push(`${PIPELINE_PHASES.find((m) => m.id === p.id).label}: override start is before the upstream phase delivers any patients — using natural start instead.`);
+      }
+    });
+    if (sim.safetyHit) {
+      warnings.push(`Pipeline did not finish within ${SIMULATION_DAY_CAP} days at these rates. Increase rates/workers or shorten the workload.`);
+    }
+    const warnHost = wholeOutput.querySelector("#pred-w-warnings");
+    warnHost.innerHTML = warnings.length
+      ? warnings.map((w) => `<div class="pred-warn" style="margin-bottom:6px">${escapeXml(w)}</div>`).join("")
+      : "";
+
+    // ---- Phase strip cards
+    const cardHost = wholeOutput.querySelector("#pred-w-phase-cards");
+    cardHost.innerHTML = "";
+    sim.phases.forEach((p) => {
+      const cfg = state.whole.phases.find((x) => x.id === p.id);
+      const meta = PIPELINE_PHASES.find((m) => m.id === p.id);
+      const card = el("div", { class: `phase-card t-${p.tone}` });
+      const dateRange = (p.start && p.end)
+        ? `${p.start.toLocaleDateString(undefined, { month: "short", day: "2-digit" })} → ${p.end.toLocaleDateString(undefined, { month: "short", day: "2-digit", year: "numeric" })}`
+        : "—";
+      const remaining = Math.max(0, p.target - p.done);
+      const rateLabel = cfg.rateUnit === "week"
+        ? `${cfg.ratePerDay} / week`
+        : `${cfg.ratePerDay} / day`;
+      const workersLabel = stageIsHumanBound(p.id) ? ` · ${p.workers} worker${p.workers === 1 ? "" : "s"}` : "";
+      card.innerHTML = `
+        <div class="pc-title">${escapeXml(meta.label)}</div>
+        <div class="pc-dates">${escapeXml(dateRange)}</div>
+        <div class="pc-meta">${Math.round(p.done)} / ${p.target} ${p.unit} · ${remaining} remaining</div>
+        <div class="pc-meta">${escapeXml(rateLabel)}${escapeXml(workersLabel)}</div>
+        ${cfg.startOverride
+          ? `<span class="pc-pill">manually started ${escapeXml(cfg.startOverride)}</span>`
+          : ""}
+      `;
+      cardHost.appendChild(card);
+    });
+
+    // ---- Gantt + cumulative chart
+    const ganttHost = wholeOutput.querySelector("#pred-w-gantt");
+    const cumulativeHost = wholeOutput.querySelector("#pred-w-cumulative");
+    if (!finalEnd) {
+      ganttHost.innerHTML = "";
+      cumulativeHost.innerHTML = "";
+      return;
+    }
+    const ganttPhases = sim.phases.map((p) => {
+      const cfg = state.whole.phases.find((x) => x.id === p.id);
+      return {
+        id: p.id,
+        label: PIPELINE_PHASES.find((m) => m.id === p.id).label,
+        tone: p.tone,
+        start: p.start,
+        end: p.end,
+        startOverride: cfg.startOverride ? parseDateInput(cfg.startOverride) : null,
+        target: p.target,
+        done: p.done,
+      };
+    });
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    ganttHost.innerHTML = `
+      <div class="gantt-card">
+        <h3 style="font-size:14px;">Pipeline timeline (Gantt)</h3>
+        ${ganttBarsSVG(ganttPhases, {
+          startDate: start,
+          endDate: finalEnd,
+          todayMarker: today,
+        })}
+      </div>
+    `;
+
+    // Sample cumulative series at ~1 point per calendar day, but cap density
+    // so very long timelines stay smooth.
+    const sampleEvery = Math.max(1, Math.floor(sim.phases[0].series.length / 200));
+    const cumulativeSeries = sim.phases.map((p) => ({
+      name: PIPELINE_PHASES.find((m) => m.id === p.id).label,
+      tone: p.tone,
+      points: p.series
+        .filter((_, idx) => idx % sampleEvery === 0 || idx === p.series.length - 1)
+        .map((s) => ({ x: s.date, y: s.cumulative })),
+    }));
+    cumulativeHost.innerHTML = `
+      <div class="gantt-card">
+        <h3 style="font-size:14px;">Cumulative patients per phase</h3>
+        ${lineChart(cumulativeSeries, {
+          yLabel: "patients",
+          height: 220,
+        })}
+      </div>
+    `;
+  }
+
+  // Initial phase grid render.
+  renderPhaseGrid();
+
+  // ---- Whole-pipeline event wiring (delegated where possible)
+  wholeControls.querySelector("#pred-w-feature").addEventListener("change", () => {
+    // Pre-fill workers from feature aggregate? No — workers stay at user value.
+    wholeRecompute();
+  });
+  wholeControls.querySelector("#pred-w-start").addEventListener("input", wholeRecompute);
+  wholeControls.querySelector("#pred-w-workdays").addEventListener("input", wholeRecompute);
+
+  // Delegate input/click to the phase-grid host so re-renders don't lose listeners.
+  wholeControls.querySelector("#pred-w-phase-grid").addEventListener("input", (ev) => {
+    const t = ev.target;
+    const phaseId = t.dataset.phase;
+    const field = t.dataset.field;
+    if (!phaseId || !field) return;
+    const phaseCfg = state.whole.phases.find((p) => p.id === phaseId);
+    if (!phaseCfg) return;
+    if (field === "rate") phaseCfg.ratePerDay = Math.max(0, parseFloat(t.value) || 0);
+    else if (field === "workers") phaseCfg.workers = Math.max(1, parseInt(t.value, 10) || 1);
+    else if (field === "override") phaseCfg.startOverride = t.value || null;
+    wholeRecompute();
+  });
+  wholeControls.querySelector("#pred-w-phase-grid").addEventListener("click", (ev) => {
+    const btn = ev.target.closest("button");
+    const checkbox = ev.target.matches("input[type=checkbox][data-field='override-toggle']") ? ev.target : null;
+    if (btn) {
+      const wrap = btn.closest("[data-field='rate-unit']");
+      if (!wrap) return;
+      const phaseId = wrap.dataset.phase;
+      const phaseCfg = state.whole.phases.find((p) => p.id === phaseId);
+      if (!phaseCfg) return;
+      phaseCfg.rateUnit = btn.dataset.unit;
+      wrap.querySelectorAll("button").forEach((b) => b.classList.toggle("active", b === btn));
+      wholeRecompute();
+    } else if (checkbox) {
+      const phaseId = checkbox.dataset.phase;
+      const phaseCfg = state.whole.phases.find((p) => p.id === phaseId);
+      if (!phaseCfg) return;
+      if (checkbox.checked) {
+        // Default override to the global pipeline start so the user has a
+        // sensible date pre-filled they can immediately edit.
+        const startStr = wholeControls.querySelector("#pred-w-start").value;
+        phaseCfg.startOverride = startStr;
+      } else {
+        phaseCfg.startOverride = null;
+      }
+      renderPhaseGrid();
+      wholeRecompute();
+    }
+  });
+
+  // ---- Scope toggle wiring
+  function applyScope() {
+    const isWhole = state.scope === "whole";
+    controls.hidden = isWhole;
+    output.hidden = isWhole;
+    wholeControls.hidden = !isWhole;
+    wholeOutput.hidden = !isWhole;
+    if (isWhole) wholeRecompute();
+    else recompute();
+  }
+  scopeToggle.querySelectorAll("button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.scope = btn.dataset.scope;
+      scopeToggle.querySelectorAll("button").forEach((b) =>
+        b.classList.toggle("active", b === btn));
+      applyScope();
+    });
+  });
+
+  // Sync the whole-pipeline feature dropdown to the same default as single mode.
+  if (firstUseful) wholeControls.querySelector("#pred-w-feature").value = firstUseful.name;
 
   // Defer initial compute until the node is in the DOM (chart sizing relies on
   // viewBox so it's fine immediately, but the input wiring needs the elements
