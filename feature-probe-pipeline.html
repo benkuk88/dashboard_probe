@@ -310,6 +310,107 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* === Predictor === */
+  .predictor {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 900px) {
+    .predictor { grid-template-columns: 1fr; }
+  }
+  .predictor-controls {
+    background: var(--bg-card);
+    border: 1px solid var(--stroke-tertiary);
+    border-radius: var(--radius);
+    padding: 16px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .predictor-output {
+    background: var(--bg-card);
+    border: 1px solid var(--stroke-tertiary);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label {
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+  }
+  .field .hint { font-size: 11px; color: var(--text-tertiary); }
+  .input, .select {
+    background: var(--bg-elev);
+    color: var(--text-primary);
+    border: 1px solid var(--stroke-tertiary);
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    width: 100%;
+  }
+  .input:focus, .select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+  }
+  .input[type="number"] { font-variant-numeric: tabular-nums; }
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .mode-toggle {
+    display: flex;
+    border: 1px solid var(--stroke-tertiary);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .mode-toggle button {
+    flex: 1;
+    background: var(--bg-elev);
+    color: var(--text-secondary);
+    border: none;
+    padding: 7px 10px;
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    border-right: 1px solid var(--stroke-tertiary);
+  }
+  .mode-toggle button:last-child { border-right: none; }
+  .mode-toggle button.active {
+    background: var(--accent-info-soft);
+    color: #9ec0ff;
+  }
+  .pred-stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .pred-stat {
+    background: var(--bg-elev);
+    border: 1px solid var(--stroke-tertiary);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .pred-stat .v { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+  .pred-stat .l { font-size: 11px; color: var(--text-secondary); }
+  .pred-stat.success .v { color: var(--accent-success); }
+  .pred-stat.warning .v { color: var(--accent-warning); }
+  .pred-stat.danger  .v { color: var(--accent-danger); }
+  .pred-stat.info    .v { color: var(--accent-info); }
+  .pred-warn {
+    font-size: 12px;
+    color: var(--accent-warning);
+    background: var(--accent-warning-soft);
+    border: 1px solid rgba(245,185,66,0.3);
+    border-radius: 6px;
+    padding: 8px 10px;
+  }
+
   /* === Drag-and-drop overlay === */
   body.drag-over::after {
     content: "Drop the CSV file to load it";
@@ -670,6 +771,102 @@ function donutChart(data) {
   return svg + legend;
 }
 
+// lineChart — draws one or more series over a shared time axis.
+// series: [{ name, tone, points: [{x: Date, y: number}], dashed?: bool }]
+// opts:   { yLabel, xLabel, height, target?: number }
+function lineChart(series, opts = {}) {
+  const padTop    = 24;
+  const padBottom = 40;
+  const padLeft   = 56;
+  const padRight  = 18;
+  const innerW    = 720;
+  const innerH    = opts.height ?? 220;
+  const totalW    = innerW + padLeft + padRight;
+  const totalH    = innerH + padTop + padBottom;
+
+  let xMin = Infinity, xMax = -Infinity, yMax = 0;
+  for (const s of series) {
+    for (const p of s.points) {
+      const t = p.x.getTime();
+      if (t < xMin) xMin = t;
+      if (t > xMax) xMax = t;
+      if (p.y > yMax) yMax = p.y;
+    }
+  }
+  if (opts.target != null && opts.target > yMax) yMax = opts.target;
+  if (!Number.isFinite(xMin) || xMin === xMax) { xMax = xMin + 24 * 3600 * 1000; }
+  if (yMax <= 0) yMax = 1;
+
+  function niceCeil(n) {
+    if (n <= 10) return Math.ceil(n);
+    const pow = Math.pow(10, Math.floor(Math.log10(n)));
+    const step = pow / 2;
+    return Math.ceil(n / step) * step;
+  }
+  const yAxisMax = niceCeil(yMax);
+
+  const xToPx = (t) => padLeft + ((t - xMin) / (xMax - xMin)) * innerW;
+  const yToPx = (v) => padTop + innerH - (v / yAxisMax) * innerH;
+
+  let svg = `<svg viewBox="0 0 ${totalW} ${totalH}" class="chart-svg" preserveAspectRatio="xMidYMid meet">`;
+
+  const yTicks = 4;
+  for (let i = 0; i <= yTicks; i++) {
+    const v = (yAxisMax * i) / yTicks;
+    const y = yToPx(v);
+    svg += `<line x1="${padLeft}" y1="${y}" x2="${padLeft + innerW}" y2="${y}" stroke="var(--stroke-tertiary)" stroke-dasharray="2 3" stroke-width="1"/>`;
+    svg += `<text x="${padLeft - 8}" y="${y + 4}" text-anchor="end" class="chart-label">${Math.round(v)}</text>`;
+  }
+
+  const xTickCount = Math.min(6, Math.max(2, Math.round(innerW / 120)));
+  for (let i = 0; i <= xTickCount; i++) {
+    const t = xMin + ((xMax - xMin) * i) / xTickCount;
+    const x = xToPx(t);
+    const d = new Date(t);
+    const lbl = `${d.toLocaleDateString(undefined, { month: "short", day: "2-digit" })}`;
+    svg += `<line x1="${x}" y1="${padTop + innerH}" x2="${x}" y2="${padTop + innerH + 4}" stroke="var(--stroke-tertiary)"/>`;
+    svg += `<text x="${x}" y="${padTop + innerH + 18}" text-anchor="middle" class="chart-label">${lbl}</text>`;
+  }
+
+  if (opts.target != null) {
+    const y = yToPx(opts.target);
+    svg += `<line x1="${padLeft}" y1="${y}" x2="${padLeft + innerW}" y2="${y}" stroke="${CHART_COLORS.warning}" stroke-dasharray="4 3" stroke-width="1.5"/>`;
+    svg += `<text x="${padLeft + innerW - 4}" y="${y - 4}" text-anchor="end" class="chart-label" style="fill:${CHART_COLORS.warning}">Target ${opts.target}</text>`;
+  }
+
+  for (const s of series) {
+    if (!s.points.length) continue;
+    const color = CHART_COLORS[s.tone] || CHART_COLORS.info;
+    let d = "";
+    s.points.forEach((p, idx) => {
+      const x = xToPx(p.x.getTime());
+      const y = yToPx(p.y);
+      d += (idx === 0 ? "M" : "L") + ` ${x.toFixed(2)} ${y.toFixed(2)} `;
+    });
+    const dashAttr = s.dashed ? `stroke-dasharray="5 4"` : "";
+    svg += `<path d="${d}" fill="none" stroke="${color}" stroke-width="2" ${dashAttr}/>`;
+    const last = s.points[s.points.length - 1];
+    svg += `<circle cx="${xToPx(last.x.getTime())}" cy="${yToPx(last.y)}" r="3.5" fill="${color}"/>`;
+  }
+
+  if (opts.yLabel) {
+    svg += `<text x="14" y="${padTop + innerH / 2}" text-anchor="middle" transform="rotate(-90 14 ${padTop + innerH / 2})" class="chart-label">${escapeXml(opts.yLabel)}</text>`;
+  }
+  svg += `<line x1="${padLeft}" y1="${padTop}" x2="${padLeft}" y2="${padTop + innerH}" stroke="var(--stroke-tertiary)"/>`;
+  svg += `<line x1="${padLeft}" y1="${padTop + innerH}" x2="${padLeft + innerW}" y2="${padTop + innerH}" stroke="var(--stroke-tertiary)"/>`;
+  svg += `</svg>`;
+
+  let legend = `<div class="legend">`;
+  for (const s of series) {
+    legend += `<div class="legend-item">
+      <span class="swatch" style="background:${CHART_COLORS[s.tone] || CHART_COLORS.info}; ${s.dashed ? "outline: 1px dashed var(--stroke);" : ""}"></span>
+      <span class="small secondary">${escapeXml(s.name)}</span>
+    </div>`;
+  }
+  legend += `</div>`;
+  return svg + legend;
+}
+
 // ============================================================================
 // FORMATTING
 // ============================================================================
@@ -678,6 +875,347 @@ function formatLoadedAt(d) {
     year: "numeric", month: "short", day: "2-digit",
     hour: "2-digit", minute: "2-digit",
   });
+}
+
+// ============================================================================
+// PREDICTOR — what-if calculator per feature & per pipeline stage.
+// ============================================================================
+
+// Each stage is one progress step in the pipeline. `done` and `target` come
+// straight from the aggregated CSV row; `unit` is what we're counting (patients
+// vs frames) and is shown in labels.
+function stagesForFeature(f) {
+  return [
+    {
+      id: "collection",
+      label: "Phase 1 — Collection",
+      unit: "patients",
+      done: f.collected,
+      target: f.required,
+    },
+    {
+      id: "curation",
+      label: "Phase 2 — Curation",
+      unit: "patients",
+      done: f.passCuration + f.failCuration,
+      target: f.collected,
+    },
+    {
+      id: "annotation",
+      label: "Phase 3 — Annotation",
+      unit: "frames",
+      done: f.completeAnnotations,
+      target: f.completeAnnotations + f.pendingAnnotations,
+    },
+    {
+      id: "review",
+      label: "Phase 4 — Frame review",
+      unit: "frames",
+      done: f.framesPassReview + f.framesFailReview,
+      target: f.framesPassReview + f.framesFailReview + f.pendingReview,
+    },
+  ];
+}
+
+function aggregateAllFeatures(features) {
+  const acc = {
+    name: "All features",
+    required: 0, collected: 0,
+    passCuration: 0, failCuration: 0,
+    completeAnnotations: 0, pendingAnnotations: 0,
+    framesPassReview: 0, framesFailReview: 0, pendingReview: 0,
+  };
+  for (const f of features) {
+    acc.required            += f.required;
+    acc.collected           += f.collected;
+    acc.passCuration        += f.passCuration;
+    acc.failCuration        += f.failCuration;
+    acc.completeAnnotations += f.completeAnnotations;
+    acc.pendingAnnotations  += f.pendingAnnotations;
+    acc.framesPassReview    += f.framesPassReview;
+    acc.framesFailReview    += f.framesFailReview;
+    acc.pendingReview       += f.pendingReview;
+  }
+  return acc;
+}
+
+function fmtDateInput(d) {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+function parseDateInput(s) {
+  // YYYY-MM-DD as local midnight (avoid timezone drift from new Date(s)).
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s).trim());
+  if (!m) return null;
+  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+}
+function daysBetween(a, b) {
+  return Math.max(0, Math.round((b.getTime() - a.getTime()) / (24 * 3600 * 1000)));
+}
+
+function renderPredictor(features) {
+  const wrap = el("div", { class: "section" });
+  wrap.innerHTML = `
+    <h2>Forecast calculator</h2>
+    <p class="secondary">
+      Pick a feature and a pipeline stage, then either set a target end date
+      (we'll compute the daily rate you need) or set a daily rate (we'll
+      compute when the stage finishes). Defaults assume work starts today.
+    </p>
+  `;
+
+  const grid = el("div", { class: "predictor" });
+
+  // ---- Controls panel
+  const controls = el("div", { class: "predictor-controls" });
+
+  const featureOptions = [
+    `<option value="__all__">All features (combined)</option>`,
+    ...features.map((f) => `<option value="${escapeXml(f.name)}">${escapeXml(f.name)}</option>`),
+  ].join("");
+
+  const today = new Date();
+  const defaultStart = fmtDateInput(today);
+  const defaultEnd = fmtDateInput(new Date(today.getTime() + 30 * 24 * 3600 * 1000));
+
+  controls.innerHTML = `
+    <div class="field">
+      <label for="pred-feature">Feature</label>
+      <select id="pred-feature" class="select">${featureOptions}</select>
+    </div>
+    <div class="field">
+      <label for="pred-stage">Pipeline stage</label>
+      <select id="pred-stage" class="select">
+        <option value="collection">Phase 1 — Collection (patients)</option>
+        <option value="curation">Phase 2 — Curation (patients)</option>
+        <option value="annotation">Phase 3 — Annotation (frames)</option>
+        <option value="review">Phase 4 — Frame review (frames)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Driver</label>
+      <div class="mode-toggle" id="pred-mode">
+        <button type="button" data-mode="end" class="active">End date → rate</button>
+        <button type="button" data-mode="rate">Daily rate → end date</button>
+      </div>
+      <span class="hint">Switch what's the input and what's the output.</span>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="pred-start">Start date</label>
+        <input id="pred-start" type="date" class="input" value="${defaultStart}" />
+      </div>
+      <div class="field" id="pred-end-field">
+        <label for="pred-end">End date</label>
+        <input id="pred-end" type="date" class="input" value="${defaultEnd}" />
+      </div>
+      <div class="field" id="pred-rate-field" hidden>
+        <label for="pred-rate">Daily rate</label>
+        <input id="pred-rate" type="number" min="0" step="0.5" class="input" value="2" />
+        <span class="hint" id="pred-rate-unit">items / day</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="pred-workdays">Working days per week</label>
+      <input id="pred-workdays" type="number" min="1" max="7" step="1" class="input" value="5" />
+      <span class="hint">Used to translate calendar days into actual work days.</span>
+    </div>
+  `;
+
+  // ---- Output panel
+  const output = el("div", { class: "predictor-output" });
+  output.innerHTML = `
+    <div id="pred-summary"></div>
+    <div id="pred-stats" class="pred-stat-row"></div>
+    <div id="pred-warning"></div>
+    <div id="pred-cumulative"></div>
+    <div id="pred-rate"></div>
+  `;
+
+  grid.appendChild(controls);
+  grid.appendChild(output);
+  wrap.appendChild(grid);
+
+  // ---- State + recompute
+  const state = { mode: "end" };
+
+  function selectedTarget() {
+    const fname = controls.querySelector("#pred-feature").value;
+    if (fname === "__all__") return aggregateAllFeatures(features);
+    return features.find((f) => f.name === fname) || aggregateAllFeatures(features);
+  }
+  function selectedStage(target) {
+    const stageId = controls.querySelector("#pred-stage").value;
+    const stages = stagesForFeature(target);
+    return stages.find((s) => s.id === stageId) || stages[0];
+  }
+
+  function recompute() {
+    const target = selectedTarget();
+    const stage = selectedStage(target);
+    const remaining = Math.max(0, stage.target - stage.done);
+
+    const startStr = controls.querySelector("#pred-start").value;
+    const endStr   = controls.querySelector("#pred-end").value;
+    const rateStr  = controls.querySelector("#pred-rate").value;
+    const workdays = Math.min(7, Math.max(1, parseInt(controls.querySelector("#pred-workdays").value, 10) || 5));
+
+    const start = parseDateInput(startStr) || new Date();
+    let end = parseDateInput(endStr);
+    let rateInput = parseFloat(rateStr);
+    if (!Number.isFinite(rateInput) || rateInput < 0) rateInput = 0;
+
+    controls.querySelector("#pred-rate-unit").textContent = `${stage.unit} / working day`;
+
+    let dailyRate = 0;        // per working day
+    let computedEnd = null;
+    let needsRate = false;
+    let warningHTML = "";
+
+    if (state.mode === "end") {
+      if (!end || end <= start) {
+        warningHTML = "End date must be after start date.";
+      } else {
+        const totalDays = daysBetween(start, end);
+        const workingDays = Math.max(1, Math.round(totalDays * (workdays / 7)));
+        dailyRate = remaining / workingDays;
+        computedEnd = end;
+        if (remaining === 0) warningHTML = `Stage already complete — ${stage.done} / ${stage.target} ${stage.unit}.`;
+      }
+    } else {
+      needsRate = true;
+      if (rateInput <= 0) {
+        warningHTML = "Daily rate must be greater than zero.";
+      } else if (remaining === 0) {
+        warningHTML = `Stage already complete — ${stage.done} / ${stage.target} ${stage.unit}.`;
+        dailyRate = rateInput;
+        computedEnd = start;
+      } else {
+        dailyRate = rateInput;
+        const workingDaysNeeded = Math.ceil(remaining / rateInput);
+        const calendarDaysNeeded = Math.ceil(workingDaysNeeded * (7 / workdays));
+        computedEnd = new Date(start.getTime() + calendarDaysNeeded * 24 * 3600 * 1000);
+      }
+    }
+
+    // ---- Summary line
+    const fname = controls.querySelector("#pred-feature").value === "__all__"
+      ? "All features"
+      : target.name;
+    const summary = output.querySelector("#pred-summary");
+    summary.innerHTML = `
+      <div class="row between">
+        <div>
+          <div class="semibold">${escapeXml(fname)} · ${escapeXml(stage.label)}</div>
+          <div class="small secondary">
+            ${stage.done} of ${stage.target} ${stage.unit} done · ${remaining} remaining
+          </div>
+        </div>
+      </div>
+    `;
+
+    // ---- Three KPI tiles
+    const stats = output.querySelector("#pred-stats");
+    stats.innerHTML = "";
+    stats.appendChild(el("div", { class: "pred-stat info" },
+      el("div", { class: "v" }, dailyRate > 0 ? dailyRate.toFixed(2) : "—"),
+      el("div", { class: "l" }, state.mode === "end" ? "Required rate / working day" : "Daily rate (input)"),
+    ));
+    stats.appendChild(el("div", { class: "pred-stat" },
+      el("div", { class: "v" }, String(remaining)),
+      el("div", { class: "l" }, `${stage.unit} remaining`),
+    ));
+    stats.appendChild(el("div", { class: "pred-stat success" },
+      el("div", { class: "v" }, computedEnd ? formatLoadedAt(computedEnd).split(",")[0] : "—"),
+      el("div", { class: "l" }, state.mode === "end" ? "Target end date" : "Predicted end date"),
+    ));
+
+    // ---- Warning area
+    output.querySelector("#pred-warning").innerHTML = warningHTML
+      ? `<div class="pred-warn">${warningHTML}</div>` : "";
+
+    // ---- Charts
+    const cumulativeBox = output.querySelector("#pred-cumulative");
+    const rateBox       = output.querySelector("#pred-rate");
+
+    if (!computedEnd || dailyRate <= 0) {
+      cumulativeBox.innerHTML = "";
+      rateBox.innerHTML = "";
+      return;
+    }
+
+    // Build daily projection from `start` to `computedEnd`. Skip non-working
+    // days (we treat the first `workdays` days of each 7-day cycle as work).
+    const totalCalDays = Math.max(1, daysBetween(start, computedEnd));
+    const cumulativePts = [{ x: new Date(start), y: stage.done }];
+    const ratePts = [];
+    let acc = stage.done;
+    for (let i = 1; i <= totalCalDays; i++) {
+      const day = new Date(start.getTime() + i * 24 * 3600 * 1000);
+      const isWorking = (day.getDay() !== 0 && day.getDay() !== 6) || workdays === 7;
+      // simple model: on working days we add `dailyRate`, otherwise 0.
+      const todaysAdd = isWorking ? dailyRate : 0;
+      acc = Math.min(stage.target, acc + todaysAdd);
+      cumulativePts.push({ x: day, y: acc });
+      ratePts.push({ x: day, y: todaysAdd });
+    }
+
+    const linearTargetPts = [
+      { x: new Date(start), y: stage.done },
+      { x: computedEnd,     y: stage.target },
+    ];
+
+    cumulativeBox.innerHTML = `
+      <h3 style="font-size:14px; margin-bottom:6px">Cumulative ${escapeXml(stage.unit)} over time</h3>
+      ${lineChart(
+        [
+          { name: `Projected cumulative (${stage.unit})`, tone: "info",    points: cumulativePts },
+          { name: "Linear path to target",                tone: "success", points: linearTargetPts, dashed: true },
+        ],
+        { yLabel: stage.unit, target: stage.target, height: 200 }
+      )}
+    `;
+
+    rateBox.innerHTML = `
+      <h3 style="font-size:14px; margin-bottom:6px">Daily ${escapeXml(stage.unit)} added</h3>
+      ${lineChart(
+        [{ name: `${stage.unit} / day`, tone: "warning", points: ratePts }],
+        { yLabel: `${stage.unit}/day`, height: 160 }
+      )}
+    `;
+  }
+
+  // ---- Wire up events
+  controls.querySelector("#pred-feature").addEventListener("change", recompute);
+  controls.querySelector("#pred-stage").addEventListener("change", recompute);
+  controls.querySelector("#pred-start").addEventListener("input", recompute);
+  controls.querySelector("#pred-end").addEventListener("input", recompute);
+  controls.querySelector("#pred-rate").addEventListener("input", recompute);
+  controls.querySelector("#pred-workdays").addEventListener("input", recompute);
+  controls.querySelectorAll("#pred-mode button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.mode = btn.dataset.mode;
+      controls.querySelectorAll("#pred-mode button").forEach((b) =>
+        b.classList.toggle("active", b === btn));
+      controls.querySelector("#pred-end-field").hidden  = state.mode !== "end";
+      controls.querySelector("#pred-rate-field").hidden = state.mode !== "rate";
+      recompute();
+    });
+  });
+
+  // Pre-select the first feature that actually has a non-zero target so the
+  // initial view is useful.
+  const firstUseful = features.find((f) => f.required > 0) || features[0];
+  if (firstUseful) controls.querySelector("#pred-feature").value = firstUseful.name;
+
+  // Defer initial compute until the node is in the DOM (chart sizing relies on
+  // viewBox so it's fine immediately, but the input wiring needs the elements
+  // to exist — they do at this point).
+  setTimeout(recompute, 0);
+
+  return wrap;
 }
 
 // ============================================================================
@@ -776,6 +1314,9 @@ function renderDashboard(state) {
     </div>
   `;
   app.appendChild(hero);
+
+  // Forecast / predictor
+  app.appendChild(renderPredictor(features));
 
   // What this file describes
   const whatSection = el("div", { class: "section" });
